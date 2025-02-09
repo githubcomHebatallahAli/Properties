@@ -39,6 +39,7 @@ return [
     'api_key' => env('VONAGE_API_KEY'),
     'api_secret' => env('VONAGE_API_SECRET'),
     'from' => env('VONAGE_FROM'),
+    'signature_secret'=>env('SIGNATURE_SECRET'),
     'application_id' => env('VONAGE_APPLICATION_ID'),
     'private_key' => env('VONAGE_PRIVATE_KEY'),
 ],
