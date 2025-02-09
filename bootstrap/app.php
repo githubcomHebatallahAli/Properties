@@ -2,6 +2,8 @@
 
 use App\Models\Admin;
 use App\Models\Chalet;
+use App\Policies\AdminPolicy;
+use App\Policies\ChaletPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
