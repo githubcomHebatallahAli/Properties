@@ -47,6 +47,6 @@ class SuccessfulRegistration extends Notification
     {
         return (new VonageMessage())
             ->content("Hello {$this->firstName}, your OTP code is: {$this->otp}")
-            ->from(config('vonage.from'));
+            ->from(config('services.vonage.from'));
     }
 }
