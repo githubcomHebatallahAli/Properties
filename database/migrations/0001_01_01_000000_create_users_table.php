@@ -13,10 +13,27 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('firstName');
+            $table->string('lastName');
+            $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('governorate');
+            $table->string('center')->nullable();
+            $table->string('address');
+            $table->enum('userType', ['user', 'broker'])->default('user')->nullable();
+            $table->string('phoNum')->unique();
+            $table->unsignedBigInteger('purchaseOperationsCount')->default(0);
+            $table->unsignedBigInteger('sellingOperationsCount')->default(0);
+            $table->unsignedBigInteger('ratingsCount')->default(0);
+            $table->unsignedBigInteger('propertiesCount')->default(0);
+            $table->boolean('is_verified')->default(false);
+            $table->timestamp('otp_sent_at')->nullable();
+            $table->string('ip')->nullable();
+            $table->timestamp('last_login_at')->nullable();
+            $table->timestamp('last_logout_at')->nullable();
+            $table->integer('session_duration')->nullable();
+            $table->softDeletes();
             $table->rememberToken();
             $table->timestamps();
         });
