@@ -21,25 +21,34 @@ class SuccessfulRegistration extends Notification
 
 
      private $otp;
-     private $name;
+     private $firstName;
 
-     public function __construct($otp, $name)
+     public function __construct($otp, $firstName)
      {
          $this->otp = $otp;
-         $this->name = $name;
+         $this->firstName = $firstName;
      }
 
      public function via($notifiable)
      {
-         return ['vonage'];  
+         return ['vonage'];
      }
 
-     public function toVonage($notifiable)
-     {
-         return new SMS(
-             $notifiable->phoNum,
-             env('VONAGE_FROM'),
-             "Hello {$this->name}, your OTP code is: {$this->otp}"
-         );
-     }
+    //  public function toVonage($notifiable)
+    //  {
+    //      return new SMS(
+    //          $notifiable->phoNum,
+    //          env('VONAGE_FROM'),
+    //          "Hello {$this->name}, your OTP code is: {$this->otp}"
+    //      );
+    //  }
+
+    public function toVonage($notifiable)
+    {
+        // return (new VonageMessage())
+        //     ->content('Welcome to My App, ' . $this->firstName . '!');
+
+        return (new VonageMessage())
+            ->content("Hello {$this->firstName}, your OTP code is: {$this->otp}");
+    }
 }

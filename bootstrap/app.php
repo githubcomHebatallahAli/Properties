@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'broker' => \App\Http\Middleware\BrokerMiddleware::class,
             'proxies' => \App\Http\Middleware\TrustProxies::class,
+            'VerifyCsrfToken' => \App\Http\Middleware\VerifyCsrfToken::class,
     ]);
 })
 ->withExceptions(function (Exceptions $exceptions) {

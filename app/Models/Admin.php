@@ -14,15 +14,16 @@ class Admin extends Authenticatable  implements JWTSubject
     use HasFactory, Notifiable, SoftDeletes;
     const PHOTO_FOLDER = 'Admin';
     protected $fillable = [
-        'name',
+        'firstName',
+        'lastName',
         'email',
         'password',
         'governorate',
+        'center',
         'address',
         'phoNum',
         'role_id',
         'status',
-        'photo',
         'last_login_at',
         'last_logout_at',
         'session_duration',
