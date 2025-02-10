@@ -41,6 +41,15 @@ Route::get('/test-sms', function () {
         new SMS("201114990063", env('VONAGE_FROM', 'Vonage'), 'اختبار من Laravel!')
     );
 
-    return response()->json($response->current());
+    $sms = $response->current();
+return response()->json([
+    'to' => $sms->getTo(),
+    'message_id' => $sms->getMessageId(),
+    'status' => $sms->getStatus(),
+    'remaining_balance' => $sms->getRemainingBalance(),
+    'message_price' => $sms->getMessagePrice(),
+    'network' => $sms->getNetwork(),
+]);
+
 });
 
