@@ -50,47 +50,93 @@ class UserAuthController extends Controller
         return $this->createNewToken($token);
     }
 
+    // public function register(UserRegisterRequest $request)
+    // {
+    //     $validator = Validator::make($request->all(), $request->rules());
+
+    //     if ($validator->fails()) {
+    //         return response()->json($validator->errors()->toJson(), 400);
+    //     }
+
+    //     $otp = mt_rand(1000, 9999);
+    //     $expiresAt = Carbon::now()->addMinutes(10);
+
+
+    //     $UserData = array_merge(
+    //         $validator->validated(),
+    //         ['password' => bcrypt($request->password)],
+    //         ['ip' => $request->ip()],
+    //         ['userType' => $request->userType ?? 'User']
+    //     );
+
+    //     $User = User::create($UserData);
+    //     $otp = mt_rand(1000, 9999);
+    //     $expiresAt = Carbon::now()->addMinutes(10);
+    //     Otp::create([
+    //         'user_id' => $User->id,
+    //         'otp' => $otp,
+    //         'expires_at' => $expiresAt,
+    //     ]);
+    //     $User->notify(new SuccessfulRegistration($otp,$User->firstName));
+
+
+    //         return response()->json([
+    //             'message' => 'User registration successful. Please verify your phone number.',
+    //             'User' => new UserRegisterResource($User),
+    //             'otp_identifier' => $User->phoNum,
+    //         ], 201);
+    //         return response()->json([
+    //             'message' => 'User registration successful. However, OTP could not be sent. Please try resending it.',
+    //             'User' => new UserRegisterResource($User),
+    //             'error' => $e->getMessage(),
+    //         ], 201);
+    //     }
+
     public function register(UserRegisterRequest $request)
-    {
-        $validator = Validator::make($request->all(), $request->rules());
+{
+    $validator = Validator::make($request->all(), $request->rules());
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors()->toJson(), 400);
-        }
+    if ($validator->fails()) {
+        return response()->json($validator->errors()->toJson(), 400);
+    }
 
-        $otp = mt_rand(1000, 9999);
-        $expiresAt = Carbon::now()->addMinutes(10);
+    $otp = mt_rand(1000, 9999); // إنشاء OTP عشوائي
+    $expiresAt = Carbon::now()->addMinutes(10);
 
+    $userData = array_merge(
+        $validator->validated(),
+        ['password' => bcrypt($request->password)],
+        ['ip' => $request->ip()],
+        ['userType' => $request->userType ?? 'User']
+    );
 
-        $UserData = array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)],
-            ['ip' => $request->ip()],
-            ['userType' => $request->userType ?? 'User']
-        );
+    $user = User::create($userData);
 
-        $User = User::create($UserData);
-        $otp = mt_rand(1000, 9999);
-        $expiresAt = Carbon::now()->addMinutes(10);
-        Otp::create([
-            'user_id' => $User->id,
-            'otp' => $otp,
-            'expires_at' => $expiresAt,
-        ]);
-        $User->notify(new SuccessfulRegistration($otp,$User->firstName));
+    // حفظ OTP في قاعدة البيانات
+    Otp::create([
+        'user_id' => $user->id,
+        'otp' => $otp,
+        'expires_at' => $expiresAt,
+    ]);
 
+    // إرسال OTP عبر Vonage
+    try {
+        $user->notify(new SuccessfulRegistration($otp, $user->first_name));
 
-            return response()->json([
-                'message' => 'User registration successful. Please verify your phone number.',
-                'User' => new UserRegisterResource($User),
-                'otp_identifier' => $User->phoNum,
-            ], 201);
-            return response()->json([
-                'message' => 'User registration successful. However, OTP could not be sent. Please try resending it.',
-                'User' => new UserRegisterResource($User),
-                'error' => $e->getMessage(),
-            ], 201);
-        }
+        return response()->json([
+            'message' => 'تم التسجيل بنجاح. يرجى التحقق من رقم هاتفك.',
+            'user' => new UserRegisterResource($user),
+            'otp_identifier' => $user->phoNum,
+        ], 201);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'تم التسجيل، ولكن حدث خطأ أثناء إرسال OTP.',
+            'user' => new UserRegisterResource($user),
+            'error' => $e->getMessage(),
+        ], 201);
+    }
+}
+
 
 
     public function logout()
