@@ -93,49 +93,63 @@ class UserAuthController extends Controller
     //     }
 
     public function register(UserRegisterRequest $request)
-{
-    $validator = Validator::make($request->all(), $request->rules());
+    {
+        $validator = Validator::make($request->all(), $request->rules());
 
-    if ($validator->fails()) {
-        return response()->json($validator->errors()->toJson(), 400);
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        $otp = mt_rand(1000, 9999); // إنشاء OTP عشوائي
+        $expiresAt = Carbon::now()->addMinutes(10);
+
+        $userData = array_merge(
+            $validator->validated(),
+            ['password' => bcrypt($request->password)],
+            ['ip' => $request->ip()],
+            ['userType' => $request->userType ?? 'User']
+        );
+
+        $user = User::create($userData);
+
+        // حفظ OTP في قاعدة البيانات
+        Otp::create([
+            'user_id' => $user->id,
+            'otp' => $otp,
+            'expires_at' => $expiresAt,
+        ]);
+
+        // **تحميل بيانات Vonage والتأكد من صحتها**
+        $apiKey = config('services.vonage.key');
+        $apiSecret = config('services.vonage.secret');
+
+        // **تصحيح إذا لم يتم تحميل القيم**
+        if (!$apiKey || !$apiSecret) {
+            return response()->json([
+                'message' => 'تم التسجيل، ولكن هناك خطأ في إعدادات Vonage.',
+                'user' => new UserRegisterResource($user),
+                'error' => 'API Key or Secret is missing from configuration.',
+            ], 500);
+        }
+
+        // **إرسال OTP عبر Vonage**
+        try {
+            $user->notify(new SuccessfulRegistration($otp, $user->first_name));
+
+            return response()->json([
+                'message' => 'تم التسجيل بنجاح. يرجى التحقق من رقم هاتفك.',
+                'user' => new UserRegisterResource($user),
+                'otp_identifier' => $user->phoNum,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'تم التسجيل، ولكن حدث خطأ أثناء إرسال OTP.',
+                'user' => new UserRegisterResource($user),
+                'error' => $e->getMessage(),
+            ], 201);
+        }
     }
 
-    $otp = mt_rand(1000, 9999); // إنشاء OTP عشوائي
-    $expiresAt = Carbon::now()->addMinutes(10);
-
-    $userData = array_merge(
-        $validator->validated(),
-        ['password' => bcrypt($request->password)],
-        ['ip' => $request->ip()],
-        ['userType' => $request->userType ?? 'User']
-    );
-
-    $user = User::create($userData);
-
-    // حفظ OTP في قاعدة البيانات
-    Otp::create([
-        'user_id' => $user->id,
-        'otp' => $otp,
-        'expires_at' => $expiresAt,
-    ]);
-
-    // إرسال OTP عبر Vonage
-    try {
-        $user->notify(new SuccessfulRegistration($otp, $user->first_name));
-
-        return response()->json([
-            'message' => 'تم التسجيل بنجاح. يرجى التحقق من رقم هاتفك.',
-            'user' => new UserRegisterResource($user),
-            'otp_identifier' => $user->phoNum,
-        ], 201);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'تم التسجيل، ولكن حدث خطأ أثناء إرسال OTP.',
-            'user' => new UserRegisterResource($user),
-            'error' => $e->getMessage(),
-        ], 201);
-    }
-}
 
 
 
