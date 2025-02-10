@@ -28,3 +28,19 @@ require __DIR__ . '/Apis/test.php';
 
 
 // Route::get('/test', [TestController::class, 'test']);
+
+use Vonage\Client;
+use Vonage\Client\Credentials\Basic;
+use Vonage\SMS\Message\SMS;
+
+Route::get('/test-sms', function () {
+    $basic  = new Basic(env('VONAGE_API_KEY'), env('VONAGE_API_SECRET'));
+    $client = new Client($basic);
+
+    $response = $client->sms()->send(
+        new SMS("201114990063", env('VONAGE_FROM', 'Vonage'), 'اختبار من Laravel!')
+    );
+
+    return $response->current();
+});
+
