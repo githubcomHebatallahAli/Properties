@@ -30,8 +30,9 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(Client::class, function ($app) {
             return new Client(new Basic(
-                config('vonage.api_key'),
-                config('vonage.api_secret')
+                config('services.vonage.api_key'),
+                config('services.vonage.api_secret')
+            
             ));
         });
     }
