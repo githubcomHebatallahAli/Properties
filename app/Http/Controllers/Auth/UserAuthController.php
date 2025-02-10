@@ -122,6 +122,7 @@ class UserAuthController extends Controller
         // **تحميل بيانات Vonage والتأكد من صحتها**
         $apiKey = config('services.vonage.key');
         $apiSecret = config('services.vonage.secret');
+        dd($apiKey, $apiSecret);
 
         // **تصحيح إذا لم يتم تحميل القيم**
         if (!$apiKey || !$apiSecret) {
