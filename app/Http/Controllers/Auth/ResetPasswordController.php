@@ -2,79 +2,49 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Carbon\Carbon;
+use App\Models\Otp;
 use App\Models\User;
 use App\Models\Admin;
-use App\Models\Broker;
-use Ichtrojan\Otp\Otp;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use App\Rules\LoginExistsInTablesRule;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 
 class ResetPasswordController extends Controller
 {
-    private $otp;
+    public function resetPassword(ResetPasswordRequest $request)
+    {
+        $user = User::where('phoNum', $request->login)
+                    ->orWhere('email', $request->login)
+                    ->first();
 
-    public function __construct(){
-        $this->otp = new Otp;
-    }
+        $admin = Admin::where('phoNum', $request->login)
+                      ->orWhere('email', $request->login)
+                      ->first();
 
-    public function resetPassword(ResetPasswordRequest $request){
+        $account = $user ?? $admin;
 
-        $otp2 = $this->otp->validate($request->phoNum, $request->otp);
-        if (!$otp2->status) {
-            return response()->json(['error' => $otp2], 401);
+        if (!$account) {
+            return response()->json(['error' => 'User or Admin not found.'], 404);
         }
 
-
-        // $user = User::where('phoNum', $request->phoNum)->first();
-        // if ($user) {
-
-        //     $user->update(['password' => Hash::make($request->password)]);
-        // } else {
-        //     $admin = Admin::where('phoNum', $request->phoNum)->first();
-        //     if ($admin) {
-
-        //         $admin->update(['password' => Hash::make($request->password)]);
-        //     } else {
-        //         // $broker = Broker::where('phoNum', $request->phoNum)->first();
-        //         // if ($broker) {
-
-        //         //     $broker->update(['password' => Hash::make($request->password)]);
-        //         // } else {
-        //             return response()->json(['error' => 'User, Admin, or Broker not found.'], 404);
-
-        //     }
-        // }
-
-        // return response()->json([
-        //     'message' => "The password reset successfully."
-        // ]);
-
-
-        $user = User::where('phoNum', $request->login)
-            ->orWhere('email', $request->login)
+        $otpRecord = Otp::where('user_id', $account->id)
+            ->where('otp', $request->otp)
+            ->where('expires_at', '>', Carbon::now())
             ->first();
 
-$admin = Admin::where('phoNum', $request->login)
-            ->orWhere('email', $request->login)
-            ->first();
+        if (!$otpRecord) {
+            return response()->json(['error' => 'Invalid or expired OTP.'], 400);
+        }
 
-if (!$user && !$admin) {
-    return response()->json(['error' => 'User or Admin not found.'], 404);
-}
+        $account->update(['password' => Hash::make($request->password)]);
 
-if ($user) {
-    $user->update(['password' => Hash::make($request->password)]);
-}
+        $otpRecord->delete();
 
-if ($admin) {
-    $admin->update(['password' => Hash::make($request->password)]);
-}
-
-return response()->json([
-    'message' => "The password reset successfully."
-]);
-
+        return response()->json(['message' => 'Password reset successfully.'], 200);
     }
 }
