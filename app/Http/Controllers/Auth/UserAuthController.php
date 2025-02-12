@@ -94,7 +94,7 @@ class UserAuthController extends Controller
 
     public function register(UserRegisterRequest $request)
     {
-        dd(config('services.vonage.api_key'), config('services.vonage.api_secret'));
+        // dd(config('services.vonage.api_key'), config('services.vonage.api_secret'));
         $validator = Validator::make($request->all(), $request->rules());
 
         if ($validator->fails()) {
