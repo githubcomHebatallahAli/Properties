@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Vonage\Client;
+use Carbon\Carbon;
 
+use Vonage\Client;
+use App\Models\Otp;
+// use Ichtrojan\Otp\Otp;
 use App\Models\User;
-use Ichtrojan\Otp\Otp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -45,4 +47,5 @@ class VerficationController extends Controller
     }
 
     return response()->json(['message' => 'Invalid or expired OTP'], 400);
+}
 }
