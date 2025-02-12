@@ -39,3 +39,4 @@ class ForgetPasswordController extends Controller
         return response()->json(['message' => "Please check your SMS or email."]);
 
 }
+}
