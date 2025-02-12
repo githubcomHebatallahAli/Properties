@@ -11,71 +11,71 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Flat extends Model
 {
     use HasFactory, SoftDeletes, DeletesMediaTrait,HandlesMediaTrait;
-    const MAIN_IMAGE_FOLDER = 'Flat/mainImages';
-    const IMAGE_FOLDER = 'Flat/images';
-    const VIDEO_FOLDER = 'Flat/videos';
-    const AUDIO_FOLDER = 'Flat/audios';
-    public function handleFileCreateMedia($request)
-    {
-        $this->handleFiles($request, $this, [
-            'mainImage' => self::MAIN_IMAGE_FOLDER,
-            'image' => self::IMAGE_FOLDER,
-            'video' => self::VIDEO_FOLDER,
-            'audio' => self::AUDIO_FOLDER,
-        ]);
-    }
+    // const MAIN_IMAGE_FOLDER = 'Flat/mainImages';
+    // const IMAGE_FOLDER = 'Flat/images';
+    // const VIDEO_FOLDER = 'Flat/videos';
+    // const AUDIO_FOLDER = 'Flat/audios';
+    // public function handleFileCreateMedia($request)
+    // {
+    //     $this->handleFiles($request, $this, [
+    //         'mainImage' => self::MAIN_IMAGE_FOLDER,
+    //         'image' => self::IMAGE_FOLDER,
+    //         'video' => self::VIDEO_FOLDER,
+    //         'audio' => self::AUDIO_FOLDER,
+    //     ]);
+    // }
 
-    public function handleFileUpdateMedia($request)
-    {
-        $this->handleFiles($request, $this, [
-            'mainImage' => self::MAIN_IMAGE_FOLDER,
-            'image' => self::IMAGE_FOLDER,
-            'video' => self::VIDEO_FOLDER,
-            'audio' => self::AUDIO_FOLDER,
-        ], true);
-    }
+    // public function handleFileUpdateMedia($request)
+    // {
+    //     $this->handleFiles($request, $this, [
+    //         'mainImage' => self::MAIN_IMAGE_FOLDER,
+    //         'image' => self::IMAGE_FOLDER,
+    //         'video' => self::VIDEO_FOLDER,
+    //         'audio' => self::AUDIO_FOLDER,
+    //     ], true);
+    // }
     protected $fillable = [
-        'broker_id',
-        'user_id',
-        'admin_id',
-        'installment_id',
-        'finishe_id',
-        'transaction_id',
-        'property_id',
-        'water_id',
-        'electricty_id',
-        'sale',
-        'governorate',
-        'city',
-        'district',
-        'street',
-        'locationGPS',
-        'facade',
-        'propertyNum',
+        // 'broker_id',
+        // 'user_id',
+        // 'admin_id',
+        // 'installment_id',
+        // 'finishe_id',
+        // 'transaction_id',
+        // 'property_id',
+        // 'water_id',
+        // 'electricty_id',
+        // 'sale',
+        // 'governorate',
+        // 'city',
+        // 'district',
+        // 'street',
+        // 'locationGPS',
+        // 'facade',
+        // 'propertyNum',
         'floorNum',
         'flatNum',
         'roomNum',
         'pathRoomNum',
-        'description',
-        'area',
-        'ownerType',
-        'creationDate',
-        'status',
-        'totalPrice',
-        'installmentPrice',
-        'downPrice',
-        'rentPrice',
+        // 'description',
+        // 'area',
+        // 'ownerType',
+        // 'creationDate',
+        // 'status',
+        // 'totalPrice',
+        // 'installmentPrice',
+        // 'downPrice',
+        // 'rentPrice',
         'gardenArea',
         'roofArea',
-        'mainImage',
-        'image',
-        'video',
-        'audio',
+        // 'mainImage',
+        // 'image',
+        // 'video',
+        // 'audio',
     ];
 
 
     protected $casts = [
-        'image' => 'array',
+        'images' => 'array',
     ];
 
     public function media()
@@ -98,15 +98,12 @@ class Flat extends Model
         return $this->belongsTo(Transaction::class);
     }
 
-    // public function sale()
-    // {
-    //     return $this->belongsTo(Sale::class);
-    // }
 
-    public function property()
-    {
-        return $this->belongsTo(Property::class);
-    }
+
+    // public function property()
+    // {
+    //     return $this->belongsTo(Property::class);
+    // }
 
     public function installment()
     {
@@ -115,13 +112,13 @@ class Flat extends Model
 
     public function finish()
     {
-        return $this->belongsTo(Finishe::class);
+        return $this->belongsTo(Finish::class);
     }
 
-    public function broker()
-    {
-        return $this->belongsTo(Broker::class);
-    }
+    // public function broker()
+    // {
+    //     return $this->belongsTo(Broker::class);
+    // }
 
     public function user()
     {

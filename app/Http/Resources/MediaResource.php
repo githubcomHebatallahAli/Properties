@@ -16,10 +16,12 @@ class MediaResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'path' => $this->path,
-            'type' => $this->type,
-            // 'mediaable_type' => $this->mediaable_type,
-            // 'mediaable_id' => $this->mediaable_id,
-    ];
+            'property' => new PropertyResource($this->property),
+            'mainImage' =>$this-> mainImage,
+            'image' =>$this-> image,
+            'video' =>$this-> video,
+            'audio' =>$this-> audio,
+        ];
+
     }
 }

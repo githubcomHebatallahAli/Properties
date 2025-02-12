@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('properties', function (Blueprint $table) {
+        Schema::create('media', function (Blueprint $table) {
             $table->id();
-            $table->string('status');
-            $table->softDeletes();
+            $table->foreignId('property_id')->constrained('properties')->cascadeOnDelete();
+            $table->string('mainImage')->nullable();
+            $table->json('images')->nullable();
+            $table->string('video')->nullable();
+            $table->string('audio')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('properties');
+        Schema::dropIfExists('media');
     }
 };

@@ -46,6 +46,8 @@ class ForgetPasswordController extends Controller
             $admin->notify(new ResetPasswordNotification($otpCode, $firstName, $emailOrPhone));
         }
 
-        return response()->json(['message' => "Please check your SMS or email."]);
+        return response()->json([
+            'message' => "Please check your SMS or email."
+        ]);
     }
 }

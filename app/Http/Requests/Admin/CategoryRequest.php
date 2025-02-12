@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class MediaRequest extends FormRequest
+class CategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,15 +24,8 @@ class MediaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'property_id' => 'nullable|exists:properties,id',
-            'mainImage' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg',
-            'image.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg',
-            'video' => 'nullable|file|mimes:mp4,mov,avi,mkv,flv,wmv,webm,3gp',
-            // 'audio' => 'nullable|file|mimes:mp3,wav,aac,ogg,flac,m4a',
-            'audio' => 'nullable|file|extensions:m4a,mp3,wav,aac,ogg,flac',
+             'name'=>'required|string'
         ];
-
-
     }
 
     public function failedValidation(Validator $validator)
@@ -43,4 +36,5 @@ class MediaRequest extends FormRequest
             'data'      => $validator->errors()
         ]));
     }
+    
 }

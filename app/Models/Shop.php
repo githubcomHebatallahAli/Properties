@@ -96,10 +96,7 @@ class Shop extends Model
         return $this->belongsTo(Transaction::class);
     }
 
-    // public function sale()
-    // {
-    //     return $this->belongsTo(Sale::class);
-    // }
+
 
     public function property()
     {
@@ -113,7 +110,7 @@ class Shop extends Model
 
     public function finish()
     {
-        return $this->belongsTo(Finishe::class);
+        return $this->belongsTo(Finish::class);
     }
 
     public function broker()

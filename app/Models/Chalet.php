@@ -139,7 +139,7 @@ protected static function boot()
 
     public function finish()
     {
-        return $this->belongsTo(Finishe::class);
+        return $this->belongsTo(Finish::class);
     }
 
     public function broker()
