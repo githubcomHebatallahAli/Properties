@@ -23,22 +23,29 @@ class ForgetPasswordController extends Controller
             return response()->json(['message' => "User or Admin not found."], 404);
         }
 
-        $identifier = $user ? $user->email ?? $user->phoNum : $admin->email ?? $admin->phoNum;
-        $firstName = $user ? $user->name : $admin->name;
         $otpCode = rand(1000, 9999);
 
         Otp::updateOrCreate(
-            ['identifier' => $identifier, 'type' => $user ? 'user' : 'admin'],
-            ['otp' => $otpCode, 'expires_at' => now()->addMinutes(10)]
+            [
+                'user_id' => $user ? $user->id : null,
+                'admin_id' => $admin ? $admin->id : null,
+            ],
+            [
+                'otp' => $otpCode,
+                'expires_at' => now()->addMinutes(10),
+            ]
         );
 
-        // إرسال الإشعار مع تمرير كل الوسائط المطلوبة
+        $firstName = $user ? $user->name : $admin->name;
+        $emailOrPhone = $user ? ($user->email ?? $user->phoNum) : ($admin->email ?? $admin->phoNum);
+
+        // إرسال الإشعار مع البيانات الصحيحة
         if ($user) {
-            $user->notify(new ResetPasswordNotification($otpCode, $firstName, $identifier));
+            $user->notify(new ResetPasswordNotification($otpCode, $firstName, $emailOrPhone));
         } else {
-            $admin->notify(new ResetPasswordNotification($otpCode, $firstName, $identifier));
+            $admin->notify(new ResetPasswordNotification($otpCode, $firstName, $emailOrPhone));
         }
 
         return response()->json(['message' => "Please check your SMS or email."]);
-}
+    }
 }

@@ -15,19 +15,18 @@ class ResetPasswordNotification extends Notification
 
     private $otp;
     private $firstName;
-    private $identifier;
+    private $emailOrPhone;
 
-    public function __construct($otp, $firstName, $identifier)
+    public function __construct($otp, $firstName, $emailOrPhone)
     {
         $this->otp = $otp;
         $this->firstName = $firstName;
-        $this->identifier = $identifier; // يمكن أن يكون بريدًا إلكترونيًا أو رقم هاتف
+        $this->emailOrPhone = $emailOrPhone;
     }
 
     public function via($notifiable)
     {
-        // إذا كان الإدخال بريدًا إلكترونيًا، أرسل عبر البريد، وإلا عبر Vonage
-        return filter_var($this->identifier, FILTER_VALIDATE_EMAIL) ? ['mail'] : ['vonage'];
+        return filter_var($this->emailOrPhone, FILTER_VALIDATE_EMAIL) ? ['mail'] : ['vonage'];
     }
 
     public function toMail($notifiable)
