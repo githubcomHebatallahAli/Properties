@@ -26,26 +26,84 @@ class VerficationController extends Controller
         'otp' => 'required|string',
     ]);
 
-    // البحث عن المستخدم باستخدام رقم الهاتف
     $user = User::where('phoNum', $request->phoNum)->first();
 
     if (!$user) {
-        return response()->json(['message' => 'User not found'], 404);
+        return response()->json([
+            'message' => 'User not found'
+        ]);
     }
 
-    // البحث عن OTP المرتبط بالمستخدم
     $otpRecord = Otp::where('user_id', $user->id)
         ->where('otp', $request->otp)
         ->where('expires_at', '>', Carbon::now())
         ->first();
 
     if ($otpRecord) {
-        // OTP صحيح وغير منتهي الصلاحية
-        $user->update(['is_verified' => true]); // تحديث حالة المستخدم
-        $otpRecord->delete(); // حذف OTP بعد التحقق منه
-        return response()->json(['message' => 'OTP verified successfully'], 200);
+        $user->update(['is_verified' => true]);
+        $otpRecord->delete();
+        return response()->json([
+            'message' => 'OTP verified successfully'
+        ]);
     }
 
-    return response()->json(['message' => 'Invalid or expired OTP'], 400);
+    return response()->json([
+        'message' => 'Invalid or expired OTP'
+    ]);
+}
+
+public function resendOtp(Request $request)
+{
+    $request->validate([
+        'phoNum' => 'required|string',
+    ]);
+
+    $user = User::where('phoNum', $request->phoNum)->first();
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'User not found'
+        ], 404);
+    }
+
+    // التحقق من آخر OTP تم إرساله خلال الدقيقة الأخيرة
+    $lastOtp = Otp::where('user_id', $user->id)
+        ->where('created_at', '>', Carbon::now()->subMinute()) // دقيقة واحدة فقط
+        ->first();
+
+    if ($lastOtp) {
+        return response()->json([
+            'message' => 'Please wait before requesting a new OTP',
+        ], 429); // HTTP 429: Too Many Requests
+    }
+
+    // إنشاء OTP جديد
+    $otp = mt_rand(1000, 9999);
+    $expiresAt = Carbon::now()->addMinutes(10);
+
+    // حفظ OTP الجديد في قاعدة البيانات
+    Otp::updateOrCreate(
+        ['user_id' => $user->id],
+        [
+            'otp' => $otp,
+            'expires_at' => $expiresAt,
+            'created_at' => Carbon::now() // تحديث وقت الإنشاء لمنع التكرار
+        ]
+    );
+
+    // إرسال OTP الجديد عبر الإشعارات
+    try {
+        $user->notify(new SuccessfulRegistration($otp, $user->first_name));
+
+        return response()->json([
+            'message' => 'OTP resent successfully',
+            'otp_identifier' => $user->phoNum,
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Failed to resend OTP',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
 }
 }
